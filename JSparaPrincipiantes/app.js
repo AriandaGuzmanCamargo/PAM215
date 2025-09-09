@@ -1,6 +1,5 @@
-let nameusuer = "john";
-let lastame = 'cater';
+let numberOne = 100;
+let numberTwo = 50;
 
-let completeName = nameusuer + lastame;
-console.log(completeName);
-
+let result = numberOne > numberTwo;
+console.log(result);
