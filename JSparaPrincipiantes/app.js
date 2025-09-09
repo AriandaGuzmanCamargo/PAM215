@@ -1,6 +1,6 @@
-var nameusuer = "john";
+let nameusuer = "john";
 let lastame = 'cater';
 
-nameuser = 'pepe';
-const PI = 3.1416;//contante
-console.log(PI);
+let completeName = nameusuer + lastame;
+console.log(completeName);
+
