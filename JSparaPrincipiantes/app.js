@@ -1,14 +1,6 @@
-
-let typeCard = 'Debid Card';
-
-switch (typeCard) {
-    case 'Debid Card':
-        console.log('esta es una tarjeta de debito');
-        break;
-    case 'Credit Card':
-        console.log('esta es una tarjeta de credito');
-        break;
-    default:
-        console.log('No card');
-        break;
+//bucle
+let count = 50;
+while(count>0){
+    console.log(count);
+    count--;
 }
