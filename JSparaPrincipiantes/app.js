@@ -2,4 +2,5 @@ var nameusuer = "john";
 let lastame = 'cater';
 
 nameuser = 'pepe';
-console.log(nameusuer);
+const PI = 3.1416;//contante
+console.log(PI);
