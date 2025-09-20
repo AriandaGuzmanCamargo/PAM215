@@ -15,4 +15,4 @@ function greetting(){
     console.log('Hola');
 }
 greetting();
-greetting();s
+greetting();
