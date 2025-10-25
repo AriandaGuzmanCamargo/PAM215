@@ -2,7 +2,7 @@ import { Text, StyleSheet, View, Button, Switch } from 'react-native'
 import React, { useState } from 'react';
 
 export default function BotonesScreen() {
-  const [esEncendido, cambiarEncendido] = useState(false);
+  const [esEncendido, cambiarEncendido] = useState(false); 
   const [color,cambiarColor] = useState('yellow');
     return (
       <View style={styles.container}>
