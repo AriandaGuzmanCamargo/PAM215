@@ -11,6 +11,15 @@ export default function App() {
   const [esEncendidoT4, cambiarEncendidoT4] = useState(false);
   const [esEncendidoT5, cambiarEncendidoT5] = useState(false);
   const [esEncendidoT6, cambiarEncendidoT6] = useState(false);
+  const reiniciarSwitches = () => {
+  cambiarEncendidoT1(false);
+  cambiarEncendidoT2(false);
+  cambiarEncendidoT3(false);
+  cambiarEncendidoT4(false);
+  cambiarEncendidoT5(false);
+  cambiarEncendidoT6(false);
+};
+
   
   useEffect(()=>{
     const timer = setTimeout(() => {
@@ -126,7 +135,7 @@ export default function App() {
             </View>
             <Button
               title='Reiniciar'
-              onPress={()=> esEncendidoT6 && cambiarEncendidoT6 }
+              onPress={()=> reiniciarSwitches }
             />
               
         
