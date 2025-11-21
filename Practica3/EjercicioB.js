@@ -13,4 +13,4 @@ verificarUsuario("admin")
 
 verificarUsuario("Ivan")
     .then(res => console.log(res))
-    .catch(err => console.error(err));//acceso err
+    .catch(err => console.error(err));//acceso denegado 
