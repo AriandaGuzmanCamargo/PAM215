@@ -36,6 +36,29 @@ export class UsuarioController {
         }
     }
 
+    async actualizarUsuario(id, nombre) {
+        try {
+            Usuario.validar(nombre);
+            const usuarioActualizado = await DatabaseService.update(id, nombre.trim());
+            this.notifyListeners();
+            return usuarioActualizado;
+        } catch (error) {
+            console.error('Error al actualizar usuario:', error);
+            throw error;
+        }
+    }
+
+    async eliminarUsuario(id) {
+        try {
+            await DatabaseService.delete(id);
+            this.notifyListeners();
+            return true;
+        } catch (error) {
+            console.error('Error al eliminar usuario:', error);
+            throw error;
+        }
+    }
+
     addListener(callback) {
         if (typeof callback === 'function') {
             this.listeners.push(callback);

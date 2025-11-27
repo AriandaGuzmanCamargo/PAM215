@@ -8,6 +8,7 @@ export default function InsertUsuarioScreen() {
   const [nombre, setNombre] = useState('');
   const [loading, setLoading] = useState(true);
   const [guardando, setGuardando] = useState(false);
+  const [editando, setEditando] = useState(null); // ID del usuario en edición
   
   const controller = useState(() => new UsuarioController())[0];
 
@@ -41,7 +42,7 @@ export default function InsertUsuarioScreen() {
         };
     }, [cargarUsuarios]);
 
-    //Inser- agregar nuevos usuarios
+    //Inser/Update - agregar o actualizar usuarios
     const handleAgregar = async () => {
       if (guardando) return;
       if (!nombre.trim()) {
@@ -50,8 +51,14 @@ export default function InsertUsuarioScreen() {
       }
       try {
         setGuardando(true);
-        const usuarioCreado = await controller.crearUsuario(nombre);
-        Alert.alert('Usuario creado', `"${usuarioCreado.nombre}" guardado con ID: ${usuarioCreado.id}`);
+        if (editando) {
+          await controller.actualizarUsuario(editando, nombre);
+          Alert.alert('Usuario actualizado', `"${nombre}" ha sido actualizado`);
+          setEditando(null);
+        } else {
+          const usuarioCreado = await controller.crearUsuario(nombre);
+          Alert.alert('Usuario creado', `"${usuarioCreado.nombre}" guardado con ID: ${usuarioCreado.id}`);
+        }
         setNombre('');
       }
       catch (error) {
@@ -61,26 +68,71 @@ export default function InsertUsuarioScreen() {
         setGuardando(false);
       }
     };
+
+    const handleEditar = (usuario) => {
+      setEditando(usuario.id);
+      setNombre(usuario.nombre);
+    };
+
+    const handleCancelar = () => {
+      setEditando(null);
+      setNombre('');
+    };
+
+    const handleEliminar = (usuario) => {
+      Alert.alert(
+        'Confirmar eliminación',
+        `¿Estás seguro de eliminar a "${usuario.nombre}"?`,
+        [
+          { text: 'Cancelar', style: 'cancel' },
+          {
+            text: 'Eliminar',
+            style: 'destructive',
+            onPress: async () => {
+              try {
+                await controller.eliminarUsuario(usuario.id);
+                Alert.alert('Éxito', `"${usuario.nombre}" eliminado`);
+              } catch (error) {
+                Alert.alert('Error', error.message);
+              }
+            },
+          },
+        ]
+      );
+    };
   
-    // Renderizar cada usuario
     const renderUsuario = ({ item, index }) => (
-    <View style={styles.userItem}>
+      <View style={styles.userItem}>
         <View style={styles.userNumber}>
-        <Text style={styles.userNumberText}>{index + 1}</Text>
+          <Text style={styles.userNumberText}>{index + 1}</Text>
         </View>
 
         <View style={styles.userInfo}>
-        <Text style={styles.userName}>{item.nombre}</Text>
-        <Text style={styles.userId}>ID: {item.id}</Text>
-        <Text style={styles.userDate}>
+          <Text style={styles.userName}>{item.nombre}</Text>
+          <Text style={styles.userId}>ID: {item.id}</Text>
+          <Text style={styles.userDate}>
             {new Date(item.fechaCreacion).toLocaleDateString('es-MX', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
             })}
-        </Text>
+          </Text>
         </View>
-    </View>
+
+        <View style={styles.userActions}>
+          <TouchableOpacity
+            style={[styles.actionButton, styles.editButton]}
+            onPress={() => handleEditar(item)}>
+            <Text style={styles.actionButtonText}>Editar</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.actionButton, styles.deleteButton]}
+            onPress={() => handleEliminar(item)}>
+            <Text style={styles.actionButtonText}>Eliminar</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
     );
 
 
@@ -92,15 +144,15 @@ export default function InsertUsuarioScreen() {
 
       {/* Zona del encabezado */}
 
-      <Text style={styles.title}> INSERT & SELECT</Text>
+      <Text style={styles.title}>CRUD USUARIOS</Text>
       <Text style={styles.subtitle}>
         {Platform.OS === 'web' ? ' WEB (LocalStorage)' : ` ${Platform.OS.toUpperCase()} (SQLite)`}
       </Text>
 
-      {/* Zona del INSERT */}
-
       <View style={styles.insertSection}>
-        <Text style={styles.sectionTitle}> Insertar Usuario</Text>
+        <Text style={styles.sectionTitle}>
+          {editando ? 'Editar Usuario' : 'Insertar Usuario'}
+        </Text>
         
         <TextInput
           style={styles.input}
@@ -110,16 +162,22 @@ export default function InsertUsuarioScreen() {
           editable={!guardando}
         />
 
-        <TouchableOpacity 
-          style={[styles.button, guardando && styles.buttonDisabled]} 
+        <TouchableOpacity
+          style={[styles.button, guardando && styles.buttonDisabled]}
           onPress={handleAgregar}
-          disabled={guardando} >
-
+          disabled={guardando}>
           <Text style={styles.buttonText}>
-            {guardando ? ' Guardando...' : 'Agregar Usuario'}
+            {guardando ? 'Guardando...' : editando ? 'Actualizar' : 'Agregar Usuario'}
           </Text>
-
         </TouchableOpacity>
+
+        {editando && (
+          <TouchableOpacity
+            style={[styles.button, styles.buttonCancel]}
+            onPress={handleCancelar}>
+            <Text style={styles.buttonText}>Cancelar</Text>
+          </TouchableOpacity>
+        )}
 
       </View>
 
@@ -237,6 +295,10 @@ const styles = StyleSheet.create({
   buttonDisabled: {
     backgroundColor: '#ccc',
   },
+  buttonCancel: {
+    backgroundColor: '#ff0000ff',
+    marginTop: 10,
+  },
   buttonText: {
     color: '#fff',
     fontSize: 16,
@@ -306,6 +368,29 @@ const styles = StyleSheet.create({
   userDate: {
     fontSize: 12,
     color: '#666',
+  },
+  userActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  actionButton: {
+    minWidth: 80,
+    paddingHorizontal: 12,
+    height: 40,
+    borderRadius: 6,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  editButton: {
+    backgroundColor: '#4cafafff',
+  },
+  deleteButton: {
+    backgroundColor: '#f436d4ff',
+  },
+  actionButtonText: {
+    fontSize: 18,
+    color: '#FFFFFF',
   },
   emptyContainer: {
     alignItems: 'center',
